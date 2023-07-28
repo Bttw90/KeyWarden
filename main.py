@@ -68,7 +68,9 @@ def registration_window():
 
         # After the registration is complete go to main_window
         if registration_succesful:
-            # TODO: salting and hashing master_psw
+            # Salting and hashing master_psw
+            hashed_master_psw = hash_and_salt(master_psw)
+            db.insert_user_table(user_name, hashed_master_psw)
 
             window.close()
             main_window()

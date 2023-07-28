@@ -22,7 +22,7 @@ class Database():
 
     def create_users_table(self):
         cursor = self.connection.cursor()
-        cursor.execute('CREATE TABLE IF NOT EXISTS users (id INT PRIMARY KEY, user_name VARCHAR(50) NOT NULL, password_hash VARCHAR(60) NOT NULL)')
+        cursor.execute('CREATE TABLE IF NOT EXISTS users (id INT PRIMARY KEY, user_name VARCHAR(50) NOT NULL, hashed_master_key VARCHAR(60) NOT NULL)')
         
     
     def create_user_psw_table(self, user_name):
@@ -30,10 +30,19 @@ class Database():
         cursor.execute(f'CREATE TABLE IF NOT EXISTS {user_name} (login_name VARCHAR(50) NOT NULL, password VARBINARY(255) NOT NULL)')
 
 
-    def insert_user_table(self, user_name, hashed_master_key, salt):
+    def insert_user_table(self, user_name, hashed_master_key):
         try:
             cursor = self.connection.cursor()
             cursor.execute('INSERT INTO users (user_name, hashed_master_key) VALUES (?, ?)', (user_name, hashed_master_key))
+            self.connection.commit()
+        except Exception as e:
+            print(f'Error while inserting data: {e}')
+
+
+    def insert_psw_table(self, user_name, login_name, password):
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(f'INSERT INTO {user_name} (user_name, hashed_master_key) VALUES (?, ?)', (login_name, password))
             self.connection.commit()
         except Exception as e:
             print(f'Error while inserting data: {e}')
