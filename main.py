@@ -1,6 +1,7 @@
 import PySimpleGUI as sg
 from user import User
 from db import Database
+from psw_manager import hash_and_salt
 
 db = Database('test')
 db.connect()
@@ -68,7 +69,6 @@ def registration_window():
         # After the registration is complete go to main_window
         if registration_succesful:
             # TODO: salting and hashing master_psw
-
 
             window.close()
             main_window()
