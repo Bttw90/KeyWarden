@@ -46,3 +46,18 @@ class Database():
             self.connection.commit()
         except Exception as e:
             print(f'Error while inserting data: {e}')
+
+
+    def get_master_psw(self, user_name):
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute('SELECT hashed_master_key FROM users WHERE user_name = ?', (user_name,))
+            db_hashed_psw = cursor.fetchone()
+            if db_hashed_psw:
+                hashed_psw = db_hashed_psw[0]
+                print('Data retrieved')
+                return hashed_psw
+            else:
+                print('No data found associated to user_name = ', user_name)
+        except  Exception as e:
+            print(f'Error while inserting data: {e}')                    

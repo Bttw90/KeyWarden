@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 from user import User
 from db import Database
-from psw_manager import hash_and_salt
+from psw_manager import hash_and_salt, psw_check
 
 db = Database('test')
 db.connect()
@@ -16,6 +16,8 @@ def login_window():
 
     window = sg.Window('Login', layout, finalize=True)
 
+    login_successful = False
+
     while True:
         event, values = window.read()
 
@@ -23,10 +25,28 @@ def login_window():
             break
         elif event == 'Login':
             # TODO: authentication and redirect logic
-            
+            try:
+                user_name = values['-USERNAME-']
+                master_psw = values['-PASSWORD-']
 
-            window.close()
-            main_window()
+                user_manager = User(user_name, master_psw)
+                user_manager.login_check()
+
+                hashed_psw = db.get_master_psw(user_name)
+
+                if psw_check(master_psw, hashed_psw):
+                    login_successful = True
+                    sg.popup('Login completed with success.')
+                else:
+                    sg.popup_error('Wrong user name or password')
+
+            except ValueError as e:
+                sg.popup_error(str(e))
+
+            if login_successful:
+                window.close()
+                main_window()
+
         elif event == 'Register':
             window.close()
             registration_window()
@@ -42,7 +62,7 @@ def registration_window():
 
     window = sg.Window('Registration', layout, finalize=True)
 
-    registration_succesful =  False
+    registration_successful =  False
 
     while True:
         event, values = window.read()
@@ -57,9 +77,9 @@ def registration_window():
                 master_psw_check = values['-PASSWORD_CHECK-']
 
                 user_manager = User(user_name, master_psw, master_psw_check)
-                user_manager.registration_check(user_manager.user_name, user_manager.master_psw, user_manager.master_psw_check)
+                user_manager.registration_check()
 
-                registration_succesful = True
+                registration_successful = True
 
                 sg.popup('Registration completed with success.')
 
@@ -67,7 +87,7 @@ def registration_window():
                 sg.popup_error(str(e))
 
         # After the registration is complete go to main_window
-        if registration_succesful:
+        if registration_successful:
             # Salting and hashing master_psw
             hashed_master_psw = hash_and_salt(master_psw)
             db.insert_user_table(user_name, hashed_master_psw)
