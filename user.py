@@ -1,7 +1,16 @@
 class User():
-    def __init__(self, user_name, master_psw, master_psw_check = None):
+    def __init__(self):
+        self.user_name = ''
+        self.master_psw = ''
+        self.master_psw_check = ''
+
+    def set_name(self, user_name):
         self.user_name = user_name
+
+    def set_psw(self, master_psw):
         self.master_psw = master_psw
+
+    def set_psw_check(self, master_psw_check):
         self.master_psw_check = master_psw_check
 
     def registration_check(self):
@@ -26,4 +35,4 @@ class User():
             
         except ValueError as e:
             raise e
-            
+        

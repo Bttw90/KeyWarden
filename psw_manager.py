@@ -12,3 +12,4 @@ def psw_check(psw, hashed_psw):
         return True
     else:
         print('It Does not Match.')
+        return False

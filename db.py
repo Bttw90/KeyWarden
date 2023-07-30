@@ -22,7 +22,7 @@ class Database():
 
     def create_users_table(self):
         cursor = self.connection.cursor()
-        cursor.execute('CREATE TABLE IF NOT EXISTS users (id INT PRIMARY KEY, user_name VARCHAR(50) NOT NULL, hashed_master_key VARCHAR(60) NOT NULL)')
+        cursor.execute('CREATE TABLE IF NOT EXISTS users (id INT PRIMARY KEY, user_name VARCHAR(50) NOT NULL UNIQUE, hashed_master_key VARCHAR(60) NOT NULL)')
         
     
     def create_user_psw_table(self, user_name):

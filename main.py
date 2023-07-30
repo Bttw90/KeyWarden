@@ -7,6 +7,8 @@ db = Database('test')
 db.connect()
 db.create_users_table()
 
+user = User()
+
 def login_window():
     layout = [
         [sg.Text('Username:', size=(10, 1)), sg.Input(key='-USERNAME-')],
@@ -24,13 +26,14 @@ def login_window():
         if event == sg.WIN_CLOSED:
             break
         elif event == 'Login':
-            # TODO: authentication and redirect logic
+            # Authentication and redirect logic
             try:
                 user_name = values['-USERNAME-']
                 master_psw = values['-PASSWORD-']
 
-                user_manager = User(user_name, master_psw)
-                user_manager.login_check()
+                user.set_name(user_name)
+                user.set_psw(master_psw)
+                user.login_check()
 
                 hashed_psw = db.get_master_psw(user_name)
 
@@ -76,8 +79,10 @@ def registration_window():
                 master_psw = values['-PASSWORD-']
                 master_psw_check = values['-PASSWORD_CHECK-']
 
-                user_manager = User(user_name, master_psw, master_psw_check)
-                user_manager.registration_check()
+                user.set_name(user_name)
+                user.set_psw(master_psw)
+                user.set_psw_check(master_psw_check)
+                user.registration_check()
 
                 registration_successful = True
 
@@ -99,6 +104,7 @@ def registration_window():
 def main_window():
     layout = [
         [sg.Text('Welcome to the Main Window!')],
+        [sg.Button('Print')],
         [sg.Button('Logout')]
     ]
 
@@ -110,6 +116,7 @@ def main_window():
         if event == sg.WIN_CLOSED or event == 'Logout':
             window.close()
             break
+
 
 if __name__ == '__main__':
     login_window()
