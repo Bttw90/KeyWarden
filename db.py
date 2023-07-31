@@ -23,16 +23,16 @@ class Database():
 
 
     def create_users_table(self):
-        self.cursor.execute('CREATE TABLE IF NOT EXISTS users (id INT PRIMARY KEY, user_name VARCHAR(50) NOT NULL UNIQUE, hashed_master_key VARCHAR(60) NOT NULL)')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS users (id INT PRIMARY KEY, user_name VARCHAR(50) NOT NULL UNIQUE, hashed_master_key VARCHAR(60) NOT NULL, salt VARCHAR(60) NOT NULL)')
         
     
     def create_user_psw_table(self, user_name):
         self.cursor.execute(f'CREATE TABLE IF NOT EXISTS {user_name} (login_name VARCHAR(50) NOT NULL UNIQUE, password VARBINARY(255) NOT NULL)')
 
 
-    def insert_user_table(self, user_name, hashed_master_key):
+    def insert_user_table(self, user_name, hashed_master_key, salt):
         try:
-            self.cursor.execute('INSERT INTO users (user_name, hashed_master_key) VALUES (?, ?)', (user_name, hashed_master_key))
+            self.cursor.execute('INSERT INTO users (user_name, hashed_master_key, salt) VALUES (?, ?, ?)', (user_name, hashed_master_key, salt))
             self.connection.commit()
             return True
         except sqlite3.Error as e:
@@ -42,7 +42,7 @@ class Database():
 
     def insert_psw_table(self, user_name, login_name, password):
         try:
-            self.cursor.execute(f'INSERT INTO {user_name} (user_name, hashed_master_key) VALUES (?, ?)', (login_name, password))
+            self.cursor.execute(f'INSERT INTO {user_name} (login_name, password) VALUES (?, ?)', (login_name, password))
             self.connection.commit()
         except Exception as e:
             print(f'Error while inserting data: {e}')
@@ -59,4 +59,18 @@ class Database():
             else:
                 print('No data found associated to user_name = ', user_name)
         except  Exception as e:
-            print(f'Error while inserting data: {e}')                    
+            print(f'Error while inserting data: {e}')
+
+    
+    def get_salt(self, user_name):
+        try:
+            self.cursor.execute('SELECT salt FROM users WHERE user_name = ?', (user_name,))
+            db_salt = self.cursor.fetchone()
+            if db_salt:
+                salt = db_salt[0]
+                print('Salt retrieved')
+                return salt
+            else:
+                print('No salt found associated to user_name = ', user_name)
+        except Exception as e:
+            print(f'Error while retrieving data: {e}')

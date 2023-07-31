@@ -90,11 +90,14 @@ def registration_window():
         # After the registration is complete go to main_window
         if checks_passed:
             # Salting and hashing master_psw
-            hashed_master_psw = hash_and_salt(master_psw)
-            registration_successful = db.insert_user_table(user_name, hashed_master_psw)
+            hashed_master_psw = hash_and_salt(master_psw)[0]
+            salt = hash_and_salt(master_psw)[1]
+            registration_successful = db.insert_user_table(user_name, hashed_master_psw, salt)
             # Check if data entered successfully
             if registration_successful:
                 sg.popup('Registration completed with success.')
+                # Create user personal passwords table
+                db.create_user_psw_table(user.name)
                 window.close()
                 main_window()
 
@@ -124,10 +127,17 @@ def psw_gen_window():
         [sg.Text('Login Name:', size=(15, 1)), sg.Input(key='-LOGIN_NAME-')],
         [sg.Text('Password Length:', size=(15, 1)), sg.Input(key='-LENGTH-')],
         [sg.Button('Generate Password'), sg.Text("", size=(30, 1), key="-OUTPUT-")],
+        [sg.Button('Save Password')],
+        [sg.Button('Test Get Password')],
         [sg.Button('Exit')]
     ]
 
     window = sg.Window('Password Generator', layout, finalize=True)
+
+    psw = None
+    # Temp:
+    psw_encrypted = None
+    key = None
 
     while True:
         event, values = window.read()
@@ -136,11 +146,25 @@ def psw_gen_window():
             window.close()
             break
         elif event == 'Generate Password':
-            # TODO: Set max and min length
+            # TODO: Set max and min length, try except
             psw_len = values['-LENGTH-']
+            # TODO: Check input validation
             psw = generate_random_password(int(psw_len))
             window["-OUTPUT-"].update(psw)
-            # TODO: Cipher with master_key and put created psw into db
+            # Testing:
+            print('Password randomicaly generated: ', psw)
+        elif event == 'Save Password':
+            # TODO: Cipher with master_key and put created psw into db, try except
+            login_name = values['-LOGIN_NAME-']
+            salt = db.get_salt(user.name)
+            key = get_fernet_key(user.master_psw, salt)
+            psw_encrypted = encrypt_psw(psw, key)
+            db.insert_psw_table(user.name, login_name, psw_encrypted)
+            sg.popup('Password saved with success.')
+        elif event == 'Test Get Password':
+            # Simply print the password to check if encrytion works correctly
+            decrypted_psw = decrypt_psw(psw_encrypted, key)
+            print('Decrypted Password: ', decrypted_psw)
 
 
 if __name__ == '__main__':
