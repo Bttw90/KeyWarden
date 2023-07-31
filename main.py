@@ -124,11 +124,11 @@ def main_window():
 
 def psw_gen_window():
     layout = [
+        [sg.Text('App Name:', size=(15, 1)), sg.Input(key='-APP_NAME-')],
         [sg.Text('Login Name:', size=(15, 1)), sg.Input(key='-LOGIN_NAME-')],
         [sg.Text('Password Length:', size=(15, 1)), sg.Input(key='-LENGTH-')],
         [sg.Button('Generate Password'), sg.Text("", size=(30, 1), key="-OUTPUT-")],
         [sg.Button('Save Password')],
-        [sg.Button('Test Get Password')],
         [sg.Button('Exit')]
     ]
 
@@ -136,8 +136,6 @@ def psw_gen_window():
 
     psw = None
     # Temp:
-    psw_encrypted = None
-    key = None
 
     while True:
         event, values = window.read()
@@ -155,16 +153,13 @@ def psw_gen_window():
             print('Password randomicaly generated: ', psw)
         elif event == 'Save Password':
             # TODO: Cipher with master_key and put created psw into db, try except
+            app_name = values['-APP_NAME-']
             login_name = values['-LOGIN_NAME-']
             salt = db.get_salt(user.name)
             key = get_fernet_key(user.master_psw, salt)
             psw_encrypted = encrypt_psw(psw, key)
-            db.insert_psw_table(user.name, login_name, psw_encrypted)
+            db.insert_psw_table(user.name, login_name, app_name, psw_encrypted)
             sg.popup('Password saved with success.')
-        elif event == 'Test Get Password':
-            # Simply print the password to check if encrytion works correctly
-            decrypted_psw = decrypt_psw(psw_encrypted, key)
-            print('Decrypted Password: ', decrypted_psw)
 
 
 if __name__ == '__main__':

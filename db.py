@@ -27,7 +27,7 @@ class Database():
         
     
     def create_user_psw_table(self, user_name):
-        self.cursor.execute(f'CREATE TABLE IF NOT EXISTS {user_name} (login_name VARCHAR(50) NOT NULL UNIQUE, password VARBINARY(255) NOT NULL)')
+        self.cursor.execute(f'CREATE TABLE IF NOT EXISTS {user_name} (login_name VARCHAR(50) NOT NULL UNIQUE, password VARBINARY(255) NOT NULL, app_name VARCHAR(50) NOT NULL UNIQUE)')
 
 
     def insert_user_table(self, user_name, hashed_master_key, salt):
@@ -40,9 +40,9 @@ class Database():
             return False
 
 
-    def insert_psw_table(self, user_name, login_name, password):
+    def insert_psw_table(self, user_name, login_name, app_name, password):
         try:
-            self.cursor.execute(f'INSERT INTO {user_name} (login_name, password) VALUES (?, ?)', (login_name, password))
+            self.cursor.execute(f'INSERT INTO {user_name} (login_name, password, app_name) VALUES (?, ?, ?)', (login_name, password, app_name))
             self.connection.commit()
         except Exception as e:
             print(f'Error while inserting data: {e}')
