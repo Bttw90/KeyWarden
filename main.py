@@ -35,7 +35,7 @@ def login_window():
                 user.set_psw(master_psw)
                 user.login_check()
 
-                hashed_psw = db.get_master_psw(user_name)
+                hashed_psw = db.get_master_psw(user.name)
 
                 if psw_check(master_psw, hashed_psw):
                     login_successful = True
@@ -65,6 +65,7 @@ def registration_window():
 
     window = sg.Window('Registration', layout, finalize=True)
 
+    fields_check = False
     registration_successful =  False
 
     while True:
@@ -82,29 +83,26 @@ def registration_window():
                 user.set_name(user_name)
                 user.set_psw(master_psw)
                 user.set_psw_check(master_psw_check)
-                user.registration_check()
-
-                registration_successful = True
-
-                sg.popup('Registration completed with success.')
+                checks_passed = user.registration_fields_check()
 
             except ValueError as e:
                 sg.popup_error(str(e))
 
         # After the registration is complete go to main_window
-        if registration_successful:
+        if checks_passed:
             # Salting and hashing master_psw
             hashed_master_psw = hash_and_salt(master_psw)
-            db.insert_user_table(user_name, hashed_master_psw)
-
-            window.close()
-            main_window()
+            registration_successful = db.insert_user_table(user_name, hashed_master_psw)
+            # Check if data entered successfully
+            if registration_successful:
+                sg.popup('Registration completed with success.')
+                window.close()
+                main_window()
 
 
 def main_window():
     layout = [
         [sg.Text('Welcome to the Main Window!')],
-        [sg.Button('Print')],
         [sg.Button('Logout')]
     ]
 
@@ -114,6 +112,7 @@ def main_window():
         event, values = window.read()
 
         if event == sg.WIN_CLOSED or event == 'Logout':
+            db.disconnect()
             window.close()
             break
 
