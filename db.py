@@ -74,3 +74,15 @@ class Database():
                 print('No salt found associated to user_name = ', user_name)
         except Exception as e:
             print(f'Error while retrieving data: {e}')
+
+    
+    def get_apps_name(self, user_name):
+        try:
+            self.cursor.execute(f'SELECT app_name FROM {user_name}')
+            db_app_names = self.cursor.fetchall()
+            db_app_list = []
+            for name in db_app_names:
+                db_app_list.append(name)
+            return db_app_list
+        except Exception as e:
+            print(f'Error while retrieving app_name data: {e}')

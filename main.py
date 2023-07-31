@@ -103,8 +103,13 @@ def registration_window():
 
 
 def main_window():
+    # TODO: Dropdown do not get new passwords in the same session
+    data = db.get_apps_name(user.name)
+
     layout = [
         [sg.Text('Welcome to the Main Window!')],
+        [sg.DropDown(data, key='-DROPDOWN-', readonly=True)],
+        [sg.Button('Get Password')],
         [sg.Button('Insert Password')],
         [sg.Button('Logout')]
     ]
@@ -118,6 +123,10 @@ def main_window():
             db.disconnect()
             window.close()
             break
+        elif event == 'Get Password':
+            # TODO: Input validation
+            selected_app = values['-DROPDOWN-']
+            print("Selected data:", selected_app)
         elif event == 'Insert Password':
             psw_gen_window()
 
@@ -135,7 +144,6 @@ def psw_gen_window():
     window = sg.Window('Password Generator', layout, finalize=True)
 
     psw = None
-    # Temp:
 
     while True:
         event, values = window.read()
@@ -155,10 +163,14 @@ def psw_gen_window():
             # TODO: Cipher with master_key and put created psw into db, try except
             app_name = values['-APP_NAME-']
             login_name = values['-LOGIN_NAME-']
+
             salt = db.get_salt(user.name)
             key = get_fernet_key(user.master_psw, salt)
+            
             psw_encrypted = encrypt_psw(psw, key)
+            
             db.insert_psw_table(user.name, login_name, app_name, psw_encrypted)
+            
             sg.popup('Password saved with success.')
 
 
