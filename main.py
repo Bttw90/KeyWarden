@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 from user import User
 from db import Database
-from psw_manager import hash_and_salt, psw_check
+from psw_manager import *
 
 db = Database('test')
 db.connect()
@@ -65,7 +65,6 @@ def registration_window():
 
     window = sg.Window('Registration', layout, finalize=True)
 
-    fields_check = False
     registration_successful =  False
 
     while True:
@@ -103,6 +102,7 @@ def registration_window():
 def main_window():
     layout = [
         [sg.Text('Welcome to the Main Window!')],
+        [sg.Button('Insert Password')],
         [sg.Button('Logout')]
     ]
 
@@ -115,6 +115,32 @@ def main_window():
             db.disconnect()
             window.close()
             break
+        elif event == 'Insert Password':
+            psw_gen_window()
+
+
+def psw_gen_window():
+    layout = [
+        [sg.Text('Login Name:', size=(15, 1)), sg.Input(key='-LOGIN_NAME-')],
+        [sg.Text('Password Length:', size=(15, 1)), sg.Input(key='-LENGTH-')],
+        [sg.Button('Generate Password'), sg.Text("", size=(30, 1), key="-OUTPUT-")],
+        [sg.Button('Exit')]
+    ]
+
+    window = sg.Window('Password Generator', layout, finalize=True)
+
+    while True:
+        event, values = window.read()
+
+        if event == sg.WIN_CLOSED or event == 'Exit':
+            window.close()
+            break
+        elif event == 'Generate Password':
+            # TODO: Set max and min length
+            psw_len = values['-LENGTH-']
+            psw = generate_random_password(int(psw_len))
+            window["-OUTPUT-"].update(psw)
+            # TODO: Cipher with master_key and put created psw into db
 
 
 if __name__ == '__main__':
