@@ -110,6 +110,8 @@ def main_window():
         [sg.Text('Welcome to the Main Window!')],
         [sg.DropDown(data, key='-DROPDOWN-', readonly=True)],
         [sg.Button('Get Password')],
+        [sg.Text('Selected Login Name:'), sg.Text('', size=(30, 1), key='-OUTPUT_NAME-')],
+        [sg.Text('Selected Password:'), sg.Text('', size=(30, 1), key='-OUTPUT_PSW-')],
         [sg.Button('Insert Password')],
         [sg.Button('Logout')]
     ]
@@ -126,7 +128,13 @@ def main_window():
         elif event == 'Get Password':
             # TODO: Input validation
             selected_app = values['-DROPDOWN-']
-            print("Selected data:", selected_app)
+
+            # TODO: Show login_name for selected app
+            login_name = db.get_login_name(user.name, selected_app[0])
+            window['-OUTPUT_NAME-'].update(login_name)
+
+            # TODO: Show decrypted password for selected app             
+
         elif event == 'Insert Password':
             psw_gen_window()
 

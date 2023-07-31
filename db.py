@@ -86,3 +86,14 @@ class Database():
             return db_app_list
         except Exception as e:
             print(f'Error while retrieving app_name data: {e}')
+
+    
+    def get_login_name(self, user_name, app_name):
+        try:
+            self.cursor.execute(f'SELECT login_name FROM {user_name} WHERE app_name = ?', (app_name,))
+            db_login_name = self.cursor.fetchone()
+            if db_login_name:
+                login_name = db_login_name[0]   
+                return login_name
+        except Exception as e:
+            print(f'Error while retrieving login_name data: {e}')
