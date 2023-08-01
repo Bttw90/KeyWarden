@@ -97,3 +97,17 @@ class Database():
                 return login_name
         except Exception as e:
             print(f'Error while retrieving login_name data: {e}')
+
+
+    def get_psw(self, user_name, app_name):
+        try:
+            self.cursor.execute(f'SELECT password FROM {user_name} WHERE app_name = ?', (app_name,))
+            db_ecypted_psw = self.cursor.fetchone()
+            if db_ecypted_psw:
+                encrypted_psw = db_ecypted_psw[0]
+                print('Data retrieved')
+                return encrypted_psw
+            else:
+                print('No password found associated to app_name = ', app_name)
+        except  Exception as e:
+            print(f'Error while inserting data: {e}')            

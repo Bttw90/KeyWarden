@@ -129,11 +129,18 @@ def main_window():
             # TODO: Input validation
             selected_app = values['-DROPDOWN-']
 
-            # TODO: Show login_name for selected app
             login_name = db.get_login_name(user.name, selected_app[0])
             window['-OUTPUT_NAME-'].update(login_name)
 
-            # TODO: Show decrypted password for selected app             
+            # TODO: Show decrypted password for selected app
+            salt = db.get_salt(user.name)
+            key = get_fernet_key(user.master_psw, salt)
+
+            psw_encrypted = db.get_psw(user.name, selected_app[0])
+            psw = decrypt_psw(psw_encrypted, key)
+
+            window['-OUTPUT_PSW-'].update(psw)
+
 
         elif event == 'Insert Password':
             psw_gen_window()
