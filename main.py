@@ -122,8 +122,8 @@ def main_window():
     ]
 
     tab_group_layout = [
-        [sg.Tab('Scheda 1', layout_tab1, key='-TAB1-')],
-        [sg.Tab('Scheda 2', layout_tab2, key='-TAB2-')]
+        [sg.Tab('Withdraw Password', layout_tab1, key='-TAB1-')],
+        [sg.Tab('Insert Password', layout_tab2, key='-TAB2-')]
     ]
 
     layout = [
@@ -158,27 +158,38 @@ def main_window():
             window['-OUTPUT_PSW-'].update(psw)
 
         elif event == 'Generate Password':
-            # TODO: Set max and min length, try except
+            # TODO: Set max and min length
             psw_len = values['-LENGTH-']
-            # TODO: Check input validation
-            psw = generate_random_password(int(psw_len))
-            window["-OUTPUT-"].update(psw)
+            try:
+                psw_len = int(psw_len)
+                if isinstance(psw_len, int):
+                    psw = generate_random_password(psw_len)
+                    window["-OUTPUT-"].update(psw)
+            except ValueError:
+                sg.popup_error('Password lenght field must be a number.')
 
         elif event == 'Save Password':
             # TODO: Cipher with master_key and put created psw into db, try except
             app_name = values['-APP_NAME-']
             login_name = values['-LOGIN_NAME-']
 
-            salt = db.get_salt(user.name)
-            key = get_fernet_key(user.master_psw, salt)
-            
-            psw_encrypted = encrypt_psw(psw, key)
-            
-            db.insert_psw_table(user.name, login_name, app_name, psw_encrypted)
-            
-            window.Element('-DROPDOWN-').Update(values = db.get_apps_name(user.name))
-            
-            sg.popup('Password saved with success.')
+            try:
+                salt = db.get_salt(user.name)
+                key = get_fernet_key(user.master_psw, salt)
+
+                if app_name == '' or login_name == '':
+                    raise ValueError
+                
+                psw_encrypted = encrypt_psw(psw, key)
+                
+                db.insert_psw_table(user.name, login_name, app_name, psw_encrypted)
+
+                window.Element('-DROPDOWN-').Update(values = db.get_apps_name(user.name))
+                
+                sg.popup('Password saved with success.')
+                
+            except ValueError:
+                sg.popup_error('Fields must not be empty.')
 
 
 if __name__ == '__main__':
