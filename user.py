@@ -28,7 +28,7 @@ class User():
             # Launch the exception to handle it in the frontend  (GUI)
             checks_passed =  False
             raise e
-        # Wont return False while catching an exception (might change in the future)
+        
         return checks_passed
         
     def login_check(self):

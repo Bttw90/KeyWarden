@@ -3,8 +3,10 @@ from user import User
 from db import Database
 from psw_manager import *
 
+# Create Database object and connect to it
 db = Database('test')
 db.connect()
+# Create users table when the program is first started 
 db.create_users_table()
 
 user = User()
@@ -103,14 +105,20 @@ def registration_window():
 
 
 def main_window():
-
+    # List of passwords saved by the user
     data = db.get_apps_name(user.name)
 
     layout_tab1 = [
         [sg.DropDown(data, key='-DROPDOWN-', readonly=True)],
         [sg.Button('Get Password')],
-        [sg.Text('Selected Login Name:'), sg.Text('', size=(30, 1), key='-OUTPUT_NAME-')],
-        [sg.Text('Selected Password:'), sg.Text('', size=(30, 1), key='-OUTPUT_PSW-')],
+        [sg.Column([
+            [sg.Text('Selected Login Name:')],
+            [sg.Text('Selected Password:')],
+        ]),
+        sg.Column([
+        [sg.InputText('', size=(30, 1), key='-OUTPUT_NAME-', disabled=True)],
+        [sg.InputText('', size=(30, 1), key='-OUTPUT_PSW-', disabled=True)],
+        ])]
     ]
 
     layout_tab2 = [
@@ -142,13 +150,12 @@ def main_window():
             break
 
         elif event == 'Get Password':
-            # TODO: Input validation
             selected_app = values['-DROPDOWN-']
 
             login_name = db.get_login_name(user.name, selected_app[0])
             window['-OUTPUT_NAME-'].update(login_name)
 
-            # TODO: Show decrypted password for selected app
+            # Show decrypted password for selected app
             salt = db.get_salt(user.name)
             key = get_fernet_key(user.master_psw, salt)
 
@@ -187,7 +194,7 @@ def main_window():
                 window.Element('-DROPDOWN-').Update(values = db.get_apps_name(user.name))
                 
                 sg.popup('Password saved with success.')
-                
+
             except ValueError:
                 sg.popup_error('Fields must not be empty.')
 
