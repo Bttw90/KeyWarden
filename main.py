@@ -103,17 +103,32 @@ def registration_window():
 
 
 def main_window():
-    # TODO: Dropdown do not get new passwords in the same session
+
     data = db.get_apps_name(user.name)
 
-    layout = [
-        [sg.Text('Welcome to the Main Window!')],
+    layout_tab1 = [
         [sg.DropDown(data, key='-DROPDOWN-', readonly=True)],
         [sg.Button('Get Password')],
         [sg.Text('Selected Login Name:'), sg.Text('', size=(30, 1), key='-OUTPUT_NAME-')],
         [sg.Text('Selected Password:'), sg.Text('', size=(30, 1), key='-OUTPUT_PSW-')],
-        [sg.Button('Insert Password')],
-        [sg.Button('Logout')]
+    ]
+
+    layout_tab2 = [
+        [sg.Text('App Name:', size=(15, 1)), sg.Input(key='-APP_NAME-')],
+        [sg.Text('Login Name:', size=(15, 1)), sg.Input(key='-LOGIN_NAME-')],
+        [sg.Text('Password Length:', size=(15, 1)), sg.Input(key='-LENGTH-')],
+        [sg.Button('Generate Password'), sg.Text("", size=(30, 1), key="-OUTPUT-")],
+        [sg.Button('Save Password')],
+    ]
+
+    tab_group_layout = [
+        [sg.Tab('Scheda 1', layout_tab1, key='-TAB1-')],
+        [sg.Tab('Scheda 2', layout_tab2, key='-TAB2-')]
+    ]
+
+    layout = [
+        [sg.TabGroup(tab_group_layout)],
+        [sg.Button('Exit')]
     ]
 
     window = sg.Window('Main Window', layout, finalize=True)
@@ -121,10 +136,11 @@ def main_window():
     while True:
         event, values = window.read()
 
-        if event == sg.WIN_CLOSED or event == 'Logout':
+        if event == sg.WIN_CLOSED or event == 'Exit':
             db.disconnect()
             window.close()
             break
+
         elif event == 'Get Password':
             # TODO: Input validation
             selected_app = values['-DROPDOWN-']
@@ -141,39 +157,13 @@ def main_window():
 
             window['-OUTPUT_PSW-'].update(psw)
 
-
-        elif event == 'Insert Password':
-            psw_gen_window()
-
-
-def psw_gen_window():
-    layout = [
-        [sg.Text('App Name:', size=(15, 1)), sg.Input(key='-APP_NAME-')],
-        [sg.Text('Login Name:', size=(15, 1)), sg.Input(key='-LOGIN_NAME-')],
-        [sg.Text('Password Length:', size=(15, 1)), sg.Input(key='-LENGTH-')],
-        [sg.Button('Generate Password'), sg.Text("", size=(30, 1), key="-OUTPUT-")],
-        [sg.Button('Save Password')],
-        [sg.Button('Exit')]
-    ]
-
-    window = sg.Window('Password Generator', layout, finalize=True)
-
-    psw = None
-
-    while True:
-        event, values = window.read()
-
-        if event == sg.WIN_CLOSED or event == 'Exit':
-            window.close()
-            break
         elif event == 'Generate Password':
             # TODO: Set max and min length, try except
             psw_len = values['-LENGTH-']
             # TODO: Check input validation
             psw = generate_random_password(int(psw_len))
             window["-OUTPUT-"].update(psw)
-            # Testing:
-            print('Password randomicaly generated: ', psw)
+
         elif event == 'Save Password':
             # TODO: Cipher with master_key and put created psw into db, try except
             app_name = values['-APP_NAME-']
@@ -185,6 +175,8 @@ def psw_gen_window():
             psw_encrypted = encrypt_psw(psw, key)
             
             db.insert_psw_table(user.name, login_name, app_name, psw_encrypted)
+            
+            window.Element('-DROPDOWN-').Update(values = db.get_apps_name(user.name))
             
             sg.popup('Password saved with success.')
 
