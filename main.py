@@ -109,7 +109,7 @@ def main_window():
     data = db.get_apps_name(user.name)
 
     layout_tab1 = [
-        [sg.DropDown(data, key='-DROPDOWN-', readonly=True)],
+        [sg.Text('Select Password') ,sg.DropDown(data, key='-DROPDOWN-', readonly=True)],
         [sg.Button('Get Password')],
         [sg.Column([
             [sg.Text('Selected Login Name:')],
@@ -124,7 +124,7 @@ def main_window():
     layout_tab2 = [
         [sg.Text('App Name:', size=(15, 1)), sg.Input(key='-APP_NAME-')],
         [sg.Text('Login Name:', size=(15, 1)), sg.Input(key='-LOGIN_NAME-')],
-        [sg.Text('Password Length:', size=(15, 1)), sg.Input(key='-LENGTH-')],
+        [sg.Text('Password Length:', size=(15, 1)), sg.Input(key='-LENGTH-', size=(3, 1))],
         [sg.Button('Generate Password'), sg.Text("", size=(30, 1), key="-OUTPUT-")],
         [sg.Button('Save Password')],
     ]
@@ -165,18 +165,24 @@ def main_window():
             window['-OUTPUT_PSW-'].update(psw)
 
         elif event == 'Generate Password':
-            # TODO: Set max and min length
             psw_len = values['-LENGTH-']
+            len_check = False
+
             try:
                 psw_len = int(psw_len)
-                if isinstance(psw_len, int):
+
+                if psw_len < 8 or psw_len >= 30:
+                    sg.popup_error('Password lenght must be between 8 and 30.')
+                else:
+                    len_check = True
+
+                if isinstance(psw_len, int) and len_check:
                     psw = generate_random_password(psw_len)
                     window["-OUTPUT-"].update(psw)
             except ValueError:
                 sg.popup_error('Password lenght field must be a number.')
 
         elif event == 'Save Password':
-            # TODO: Cipher with master_key and put created psw into db, try except
             app_name = values['-APP_NAME-']
             login_name = values['-LOGIN_NAME-']
 
@@ -190,7 +196,7 @@ def main_window():
                 psw_encrypted = encrypt_psw(psw, key)
                 
                 db.insert_psw_table(user.name, login_name, app_name, psw_encrypted)
-
+                # Update scrolldown window with the newly created credentials
                 window.Element('-DROPDOWN-').Update(values = db.get_apps_name(user.name))
                 
                 sg.popup('Password saved with success.')
