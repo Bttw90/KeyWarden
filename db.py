@@ -10,7 +10,6 @@ class Database():
         try:
             self.connection = sqlite3.connect(f'{self.db_name}.db')
             self.cursor = self.connection.cursor()
-            print('Successful connection to the database.')
         except sqlite3.Error as e:
             print(f'Error while connecting to the database: {e}')
 
@@ -18,7 +17,6 @@ class Database():
     def disconnect(self):
         if self.connection:
             self.connection.close()
-            print('Database connection closed successfully.')
             self.connection = None
 
 
@@ -54,7 +52,6 @@ class Database():
             db_hashed_psw = self.cursor.fetchone()
             if db_hashed_psw:
                 hashed_psw = db_hashed_psw[0]
-                print('Data retrieved')
                 return hashed_psw
             else:
                 print('No data found associated to user_name = ', user_name)
@@ -68,7 +65,6 @@ class Database():
             db_salt = self.cursor.fetchone()
             if db_salt:
                 salt = db_salt[0]
-                print('Salt retrieved')
                 return salt
             else:
                 print('No salt found associated to user_name = ', user_name)
@@ -105,7 +101,6 @@ class Database():
             db_ecypted_psw = self.cursor.fetchone()
             if db_ecypted_psw:
                 encrypted_psw = db_ecypted_psw[0]
-                print('Data retrieved')
                 return encrypted_psw
             else:
                 print('No password found associated to app_name = ', app_name)

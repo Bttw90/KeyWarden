@@ -16,10 +16,8 @@ def hash_and_salt(psw):
 def psw_check(psw, hashed_psw):
     psw = psw.encode('utf-8')
     if bcrypt.checkpw(psw, hashed_psw):
-        print('It Matches!')
         return True
     else:
-        print('It Does not Match.')
         return False
 
 def generate_random_password(length):

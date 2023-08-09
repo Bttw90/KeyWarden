@@ -107,9 +107,10 @@ def registration_window():
 def main_window():
     # List of passwords saved by the user
     data = db.get_apps_name(user.name)
+    psw = None
 
     layout_tab1 = [
-        [sg.Text('Select Password') ,sg.DropDown(data, key='-DROPDOWN-', readonly=True)],
+        [sg.Text('Select Password:') ,sg.DropDown(data, key='-DROPDOWN-', readonly=True)],
         [sg.Button('Get Password')],
         [sg.Column([
             [sg.Text('Selected Login Name:')],
@@ -187,19 +188,21 @@ def main_window():
             login_name = values['-LOGIN_NAME-']
 
             try:
-                salt = db.get_salt(user.name)
-                key = get_fernet_key(user.master_psw, salt)
-
                 if app_name == '' or login_name == '':
                     raise ValueError
                 
-                psw_encrypted = encrypt_psw(psw, key)
-                
-                db.insert_psw_table(user.name, login_name, app_name, psw_encrypted)
-                # Update scrolldown window with the newly created credentials
-                window.Element('-DROPDOWN-').Update(values = db.get_apps_name(user.name))
-                
-                sg.popup('Password saved with success.')
+                if psw:
+                    salt = db.get_salt(user.name)
+                    key = get_fernet_key(user.master_psw, salt)
+                    psw_encrypted = encrypt_psw(psw, key)
+
+                    db.insert_psw_table(user.name, login_name, app_name, psw_encrypted)
+                    # Update scrolldown window with the newly created credentials
+                    window.Element('-DROPDOWN-').Update(values = db.get_apps_name(user.name))
+                    
+                    sg.popup('Password saved with success.')
+                else:
+                    sg.popup_error('Can not save before generating a valid password.')   
 
             except ValueError:
                 sg.popup_error('Fields must not be empty.')
