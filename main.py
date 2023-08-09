@@ -13,8 +13,8 @@ user = User()
 
 def login_window():
     layout = [
-        [sg.Text('Username:', size=(10, 1)), sg.Input(key='-USERNAME-')],
-        [sg.Text('Password:', size=(10, 1)), sg.Input(key='-PASSWORD-', password_char='*')],
+        [sg.Text('Username:', size=(10, 1)), sg.Input(key='-USERNAME-', size=(20, 1))],
+        [sg.Text('Password:', size=(10, 1)), sg.Input(key='-PASSWORD-', password_char='*', size=(20, 1))],
         [sg.Button('Login'), sg.Button('Register')]
     ]
 
@@ -59,9 +59,9 @@ def login_window():
 
 def registration_window():
     layout = [
-        [sg.Text('Username:', size=(15, 1)), sg.Input(key='-USERNAME-')],
-        [sg.Text('Password:', size=(15, 1)), sg.Input(key='-PASSWORD-', password_char='*')],
-        [sg.Text('Repeat Password:', size=(15, 1)), sg.Input(key='-PASSWORD_CHECK-', password_char='*')],
+        [sg.Text('Username:', size=(15, 1)), sg.Input(key='-USERNAME-', size=(20, 1))],
+        [sg.Text('Password:', size=(15, 1)), sg.Input(key='-PASSWORD-', password_char='*', size=(20, 1))],
+        [sg.Text('Repeat Password:', size=(15, 1)), sg.Input(key='-PASSWORD_CHECK-', password_char='*', size=(20, 1))],
         [sg.Button('Register')]
     ]
 
@@ -123,8 +123,8 @@ def main_window():
     ]
 
     layout_tab2 = [
-        [sg.Text('App Name:', size=(15, 1)), sg.Input(key='-APP_NAME-')],
-        [sg.Text('Login Name:', size=(15, 1)), sg.Input(key='-LOGIN_NAME-')],
+        [sg.Text('App Name:', size=(15, 1)), sg.Input(key='-APP_NAME-', size=(20, 1))],
+        [sg.Text('Login Name:', size=(15, 1)), sg.Input(key='-LOGIN_NAME-', size=(20, 1))],
         [sg.Text('Password Length:', size=(15, 1)), sg.Input(key='-LENGTH-', size=(3, 1))],
         [sg.Button('Generate Password'), sg.Text("", size=(30, 1), key="-OUTPUT-")],
         [sg.Button('Save Password')],
